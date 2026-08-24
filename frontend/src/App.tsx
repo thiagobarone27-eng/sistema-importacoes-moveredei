@@ -1,5 +1,8 @@
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { Layout } from "./components/layout/Layout";
+import { ProtectedRoute } from "./components/auth/ProtectedRoute";
+import { SomenteAdmin } from "./components/auth/SomenteAdmin";
+import { Login } from "./pages/Login";
 import { Dashboard } from "./pages/Dashboard";
 import { ImportacoesList } from "./pages/importacoes/ImportacoesList";
 import { ImportacaoForm } from "./pages/importacoes/ImportacaoForm";
@@ -14,18 +17,41 @@ import { EmpresaDetail } from "./pages/empresas/EmpresaDetail";
 import { Relatorios } from "./pages/Relatorios";
 import { ImportarPlanilha } from "./pages/ImportarPlanilha";
 import { Configuracoes } from "./pages/Configuracoes";
+import { Usuarios } from "./pages/Usuarios";
 import { NotFound } from "./pages/NotFound";
 
 export default function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route element={<Layout />}>
+        <Route path="login" element={<Login />} />
+
+        <Route
+          element={
+            <ProtectedRoute>
+              <Layout />
+            </ProtectedRoute>
+          }
+        >
           <Route index element={<Dashboard />} />
 
           <Route path="importacoes" element={<ImportacoesList />} />
-          <Route path="importacoes/nova" element={<ImportacaoForm />} />
-          <Route path="importacoes/:id/editar" element={<ImportacaoForm />} />
+          <Route
+            path="importacoes/nova"
+            element={
+              <SomenteAdmin>
+                <ImportacaoForm />
+              </SomenteAdmin>
+            }
+          />
+          <Route
+            path="importacoes/:id/editar"
+            element={
+              <SomenteAdmin>
+                <ImportacaoForm />
+              </SomenteAdmin>
+            }
+          />
           <Route path="importacoes/:id" element={<ImportacaoDetail />} />
 
           <Route path="eficiencia" element={<Eficiencia />} />
@@ -38,10 +64,32 @@ export default function App() {
           <Route path="empresas/:id" element={<EmpresaDetail />} />
 
           <Route path="relatorios" element={<Relatorios />} />
-          <Route path="importar" element={<ImportarPlanilha />} />
+          <Route
+            path="importar"
+            element={
+              <SomenteAdmin>
+                <ImportarPlanilha />
+              </SomenteAdmin>
+            }
+          />
 
           <Route path="configuracoes" element={<Configuracoes />} />
-          <Route path="configuracoes/eficiencia" element={<EficienciaConfig />} />
+          <Route
+            path="configuracoes/eficiencia"
+            element={
+              <SomenteAdmin>
+                <EficienciaConfig />
+              </SomenteAdmin>
+            }
+          />
+          <Route
+            path="configuracoes/usuarios"
+            element={
+              <SomenteAdmin>
+                <Usuarios />
+              </SomenteAdmin>
+            }
+          />
 
           <Route path="*" element={<NotFound />} />
         </Route>

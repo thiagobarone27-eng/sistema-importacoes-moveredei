@@ -14,11 +14,27 @@ import type {
   HistoricoStatusItem,
   Importacao,
   ImportarPlanilhaResponse,
+  LoginResponse,
+  Papel,
   Produto,
   RelatorioDados,
   StatusImportacao,
   TipoRelatorio,
+  Usuario,
 } from "./types";
+
+export const authApi = {
+  login: (email: string, senha: string) => api.post<LoginResponse>("/auth/login", { email, senha }),
+  me: () => api.get<Usuario>("/auth/me"),
+  listarUsuarios: () => api.get<Usuario[]>("/auth/usuarios"),
+  criarUsuario: (dados: { nome: string; email: string; senha: string; papel: Papel }) =>
+    api.post<Usuario>("/auth/usuarios", dados),
+  atualizarUsuario: (
+    id: number,
+    dados: Partial<{ nome: string; papel: Papel; ativo: boolean; senha: string }>
+  ) => api.patch<Usuario>(`/auth/usuarios/${id}`, dados),
+  removerUsuario: (id: number) => api.delete<void>(`/auth/usuarios/${id}`),
+};
 
 function filtrosParaParams(filtros: FiltrosImportacoes = {}): Record<string, unknown> {
   return {

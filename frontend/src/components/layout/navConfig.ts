@@ -17,6 +17,8 @@ export interface NavItem {
   to: string;
   icon: LucideIcon;
   end?: boolean;
+  /** Item so aparece no menu para usuarios com papel "admin". */
+  adminOnly?: boolean;
 }
 
 export interface NavGroup {
@@ -33,7 +35,7 @@ export const NAV_GROUPS: NavGroup[] = [
     titulo: "Importações",
     itens: [
       { label: "Todas as importações", to: "/importacoes", icon: PackageSearch },
-      { label: "Nova importação", to: "/importacoes/nova", icon: PlusCircle },
+      { label: "Nova importação", to: "/importacoes/nova", icon: PlusCircle, adminOnly: true },
     ],
   },
   {
@@ -49,7 +51,7 @@ export const NAV_GROUPS: NavGroup[] = [
     titulo: "Relatórios",
     itens: [
       { label: "Relatórios", to: "/relatorios", icon: FileBarChart2 },
-      { label: "Importar planilha", to: "/importar", icon: UploadCloud },
+      { label: "Importar planilha", to: "/importar", icon: UploadCloud, adminOnly: true },
     ],
   },
   {

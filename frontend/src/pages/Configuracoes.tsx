@@ -25,12 +25,24 @@ export function Configuracoes() {
         </Card>
       </Link>
 
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-        <PlaceholderCard
-          icon={Users}
-          titulo="Usuários e permissões"
-          descricao="Controle de acesso multiusuário com papéis e permissões."
-        />
+      <Link to="/configuracoes/usuarios">
+        <Card className="transition-shadow hover:shadow-md">
+          <CardBody className="flex items-center justify-between gap-3">
+            <div className="flex items-center gap-3">
+              <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-brand-50 text-brand-700">
+                <Users size={20} />
+              </div>
+              <div>
+                <p className="text-sm font-semibold text-ink-800">Usuários e permissões</p>
+                <p className="text-xs text-ink-500">Controle de acesso multiusuário com papéis e permissões.</p>
+              </div>
+            </div>
+            <ChevronRight size={18} className="text-ink-300" />
+          </CardBody>
+        </Card>
+      </Link>
+
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
         <PlaceholderCard
           icon={Layers}
           titulo="Multiempresa"

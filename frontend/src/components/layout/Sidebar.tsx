@@ -1,13 +1,22 @@
 import { NavLink } from "react-router-dom";
-import { Ship, X } from "lucide-react";
+import { LogOut, Ship, X } from "lucide-react";
 import { NAV_GROUPS } from "./navConfig";
+import { useAuth } from "../../lib/AuthContext";
 
 interface SidebarProps {
   mobileOpen: boolean;
   onCloseMobile: () => void;
 }
 
+function iniciais(nome: string): string {
+  const partes = nome.trim().split(/\s+/);
+  const primeiras = partes.slice(0, 2).map((p) => p[0]?.toUpperCase() ?? "");
+  return primeiras.join("") || "?";
+}
+
 export function Sidebar({ mobileOpen, onCloseMobile }: SidebarProps) {
+  const { usuario, isAdmin, logout } = useAuth();
+
   return (
     <>
       {/* Overlay mobile */}
@@ -44,13 +53,16 @@ export function Sidebar({ mobileOpen, onCloseMobile }: SidebarProps) {
         </div>
 
         <nav className="flex-1 space-y-6 overflow-y-auto px-3 py-5">
-          {NAV_GROUPS.map((grupo) => (
+          {NAV_GROUPS.map((grupo) => {
+            const itens = grupo.itens.filter((item) => !item.adminOnly || isAdmin);
+            if (itens.length === 0) return null;
+            return (
             <div key={grupo.titulo}>
               <p className="px-2.5 pb-2 text-[11px] font-semibold uppercase tracking-wider text-brand-300">
                 {grupo.titulo}
               </p>
               <div className="space-y-0.5">
-                {grupo.itens.map((item) => (
+                {itens.map((item) => (
                   <NavLink
                     key={item.to}
                     to={item.to}
@@ -70,18 +82,29 @@ export function Sidebar({ mobileOpen, onCloseMobile }: SidebarProps) {
                 ))}
               </div>
             </div>
-          ))}
+            );
+          })}
         </nav>
 
         <div className="border-t border-white/10 px-4 py-4">
           <div className="flex items-center gap-2.5">
             <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-brand-500 text-xs font-semibold text-white">
-              TH
+              {usuario ? iniciais(usuario.nome) : "?"}
             </div>
-            <div className="min-w-0 leading-tight">
-              <p className="truncate text-sm font-medium text-white">Thiago</p>
-              <p className="truncate text-[11px] text-brand-300">Administrador</p>
+            <div className="min-w-0 flex-1 leading-tight">
+              <p className="truncate text-sm font-medium text-white">{usuario?.nome ?? "..."}</p>
+              <p className="truncate text-[11px] text-brand-300">
+                {isAdmin ? "Administrador" : "Visualizador"}
+              </p>
             </div>
+            <button
+              onClick={logout}
+              title="Sair"
+              aria-label="Sair"
+              className="shrink-0 rounded-md p-1.5 text-brand-300 hover:bg-white/10 hover:text-white"
+            >
+              <LogOut size={16} />
+            </button>
           </div>
         </div>
       </aside>

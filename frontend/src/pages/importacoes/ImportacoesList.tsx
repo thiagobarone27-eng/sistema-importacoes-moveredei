@@ -12,6 +12,7 @@ import { useAsync } from "../../lib/useAsync";
 import { useFiltrosUrl } from "../../lib/useFiltros";
 import { useCatalogos } from "../../lib/useCatalogos";
 import { useSort } from "../../lib/useSort";
+import { useAuth } from "../../lib/AuthContext";
 import { importacoesApi } from "../../api/endpoints";
 import { formatCurrency, formatDate, formatMultiplier, formatNumber, formatPercent } from "../../lib/format";
 import type { Importacao } from "../../api/types";
@@ -49,6 +50,7 @@ export function ImportacoesList() {
   const navigate = useNavigate();
   const { filtros } = useFiltrosUrl();
   const catalogos = useCatalogos();
+  const { isAdmin } = useAuth();
 
   const importacoes = useAsync(() => importacoesApi.listar(filtros), [JSON.stringify(filtros)]);
 
@@ -64,9 +66,11 @@ export function ImportacoesList() {
         title="Importações"
         subtitle="Todos os processos de importação cadastrados."
         actions={
-          <Button icon={<PlusCircle size={16} />} onClick={() => navigate("/importacoes/nova")}>
-            Nova importação
-          </Button>
+          isAdmin ? (
+            <Button icon={<PlusCircle size={16} />} onClick={() => navigate("/importacoes/nova")}>
+              Nova importação
+            </Button>
+          ) : undefined
         }
       />
 
@@ -91,9 +95,11 @@ export function ImportacoesList() {
               title="Nenhuma importação encontrada com esses filtros"
               message="Tente ajustar ou limpar os filtros, ou cadastre uma nova importação."
               action={
-                <Button size="sm" variant="outline" onClick={() => navigate("/importacoes/nova")}>
-                  Nova importação
-                </Button>
+                isAdmin ? (
+                  <Button size="sm" variant="outline" onClick={() => navigate("/importacoes/nova")}>
+                    Nova importação
+                  </Button>
+                ) : undefined
               }
             />
           </div>

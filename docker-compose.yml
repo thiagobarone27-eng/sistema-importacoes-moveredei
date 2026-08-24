@@ -6,6 +6,10 @@ services:
     environment:
       DATABASE_URL: "file:./data/dev.db"
       PORT: "4000"
+      JWT_SECRET: "${JWT_SECRET:-troque-por-um-valor-aleatorio-longo}"
+      ADMIN_NOME: "${ADMIN_NOME:-Administrador}"
+      ADMIN_EMAIL: "${ADMIN_EMAIL:-admin@moveredei.com}"
+      ADMIN_SENHA_INICIAL: "${ADMIN_SENHA_INICIAL:-}"
     volumes:
       # Persiste o banco SQLite fora do container, entre updates/restart.
       - backend-data:/app/data

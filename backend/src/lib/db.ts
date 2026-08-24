@@ -141,6 +141,17 @@ export interface HistoricoAlteracaoTable {
   alteradoEm: string;
 }
 
+export interface UsuarioTable {
+  id: Generated<number>;
+  nome: string;
+  email: string;
+  senhaHash: string;
+  papel: Generated<string>; // "admin" | "visualizador"
+  ativo: Generated<number>; // 1 = ativo, 0 = desativado
+  criadoEm: Generated<string>;
+  atualizadoEm: Generated<string>;
+}
+
 export interface ConfiguracaoEficienciaTable {
   id: Generated<number>;
   muitoEficienteOverheadMax: Generated<number>;
@@ -164,6 +175,7 @@ export interface Database {
   historicoStatus: HistoricoStatusTable;
   historicoAlteracoes: HistoricoAlteracaoTable;
   configuracaoEficiencia: ConfiguracaoEficienciaTable;
+  usuarios: UsuarioTable;
 }
 
 export const db = new Kysely<Database>({

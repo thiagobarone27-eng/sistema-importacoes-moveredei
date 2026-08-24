@@ -1,6 +1,23 @@
 // Tipos espelhando exatamente o formato de resposta observado no backend
 // (ver src/lib/consultaImportacoes.ts, calculos.ts, dashboard.ts etc).
 
+export type Papel = "admin" | "visualizador";
+
+export interface Usuario {
+  id: number;
+  nome: string;
+  email: string;
+  papel: Papel;
+  ativo: boolean;
+  criadoEm: string;
+  atualizadoEm: string;
+}
+
+export interface LoginResponse {
+  token: string;
+  usuario: Usuario;
+}
+
 export interface Empresa {
   id: number;
   nome: string;

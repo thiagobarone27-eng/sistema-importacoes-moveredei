@@ -11,6 +11,7 @@ import { IndicadoresGrid } from "../../components/importacoes/IndicadoresGrid";
 import { EfficiencyBadge } from "../../components/ui/EfficiencyBadge";
 import { Modal } from "../../components/ui/Modal";
 import { useAsync } from "../../lib/useAsync";
+import { useAuth } from "../../lib/AuthContext";
 import { importacoesApi, statusApi } from "../../api/endpoints";
 import { formatCurrency, formatDate, formatDateTime, formatNumber } from "../../lib/format";
 
@@ -56,6 +57,7 @@ const CAMPO_LABEL: Record<string, string> = {
 export function ImportacaoDetail() {
   const { id } = useParams();
   const navigate = useNavigate();
+  const { isAdmin } = useAuth();
   const importacaoId = Number(id);
   const [aba, setAba] = useState<Aba>("status");
   const [confirmandoArquivar, setConfirmandoArquivar] = useState(false);
@@ -104,10 +106,12 @@ export function ImportacaoDetail() {
           actions={
             <>
               <EfficiencyBadge classificacao={imp.classificacaoEficiencia} />
-              <Button variant="outline" icon={<Pencil size={15} />} onClick={() => navigate(`/importacoes/${imp.id}/editar`)}>
-                Editar
-              </Button>
-              {!imp.arquivadoEm && (
+              {isAdmin && (
+                <Button variant="outline" icon={<Pencil size={15} />} onClick={() => navigate(`/importacoes/${imp.id}/editar`)}>
+                  Editar
+                </Button>
+              )}
+              {isAdmin && !imp.arquivadoEm && (
                 <Button variant="danger" icon={<Archive size={15} />} onClick={() => setConfirmandoArquivar(true)}>
                   Arquivar
                 </Button>
@@ -136,14 +140,16 @@ export function ImportacaoDetail() {
         </CardBody>
       </Card>
 
-      <Card>
-        <CardHeader title="Status e exceções" subtitle="Aplique mudanças de status a qualquer momento" />
-        <CardBody>
-          {todosStatus.data && (
-            <StatusChanger statusAtual={imp.status} todosStatus={todosStatus.data} onAplicar={handleMudarStatus} />
-          )}
-        </CardBody>
-      </Card>
+      {isAdmin && (
+        <Card>
+          <CardHeader title="Status e exceções" subtitle="Aplique mudanças de status a qualquer momento" />
+          <CardBody>
+            {todosStatus.data && (
+              <StatusChanger statusAtual={imp.status} todosStatus={todosStatus.data} onAplicar={handleMudarStatus} />
+            )}
+          </CardBody>
+        </Card>
+      )}
 
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-3">
         <Card className="xl:col-span-2">

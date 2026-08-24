@@ -16,6 +16,37 @@ export class ApiError extends Error {
   }
 }
 
+// Token de sessao (JWT), guardado no localStorage pelo AuthContext. O
+// client.ts le direto daqui (em vez de importar o contexto) para nao criar
+// dependencia circular entre a camada de API e a camada de React.
+const TOKEN_STORAGE_KEY = "moveredei_token";
+
+export function getToken(): string | null {
+  try {
+    return localStorage.getItem(TOKEN_STORAGE_KEY);
+  } catch {
+    return null;
+  }
+}
+
+export function setToken(token: string | null): void {
+  try {
+    if (token) localStorage.setItem(TOKEN_STORAGE_KEY, token);
+    else localStorage.removeItem(TOKEN_STORAGE_KEY);
+  } catch {
+    // Ambiente sem localStorage (ex: preview sandboxado) - sessao vira
+    // apenas em memoria para esta aba, sem persistir entre recarregamentos.
+  }
+}
+
+/**
+ * Disparado sempre que uma chamada de API volta com 401 (sessao invalida
+ * ou expirada). O AuthContext escuta este evento para limpar o usuario e
+ * redirecionar para a tela de login, mesmo quando o 401 acontece fora de
+ * uma acao explicita de login (ex: token expirou em segundo plano).
+ */
+const SESSAO_EXPIRADA_EVENT = "moveredei:sessao-expirada";
+
 function buildUrl(path: string, params?: Record<string, unknown>): string {
   const url = new URL(
     path.startsWith("http") ? path : `${API_BASE_URL}${path.startsWith("/") ? path : `/${path}`}`
@@ -38,6 +69,11 @@ async function parseResponse(res: Response): Promise<unknown> {
   return res.text();
 }
 
+function authHeaders(): Record<string, string> {
+  const token = getToken();
+  return token ? { Authorization: `Bearer ${token}` } : {};
+}
+
 async function request<T>(
   method: string,
   path: string,
@@ -48,7 +84,10 @@ async function request<T>(
   try {
     res = await fetch(url, {
       method,
-      headers: opts.body !== undefined ? { "Content-Type": "application/json" } : undefined,
+      headers: {
+        ...authHeaders(),
+        ...(opts.body !== undefined ? { "Content-Type": "application/json" } : {}),
+      },
       body: opts.body !== undefined ? JSON.stringify(opts.body) : undefined,
     });
   } catch {
@@ -65,10 +104,23 @@ async function request<T>(
       (payload && typeof payload === "object" && "erro" in (payload as any)
         ? (payload as any).erro
         : null) || `Erro ${res.status} ao chamar ${path}`;
+
+    // 401 fora da propria tela de login = sessao expirou/invalida. Avisa o
+    // AuthContext para deslogar e mandar o usuario de volta pro /login.
+    if (res.status === 401 && !path.includes("/auth/login")) {
+      window.dispatchEvent(new CustomEvent(SESSAO_EXPIRADA_EVENT));
+    }
+
     throw new ApiError(mensagem, res.status, payload);
   }
 
   return payload as T;
+}
+
+export function onSessaoExpirada(callback: () => void): () => void {
+  const handler = () => callback();
+  window.addEventListener(SESSAO_EXPIRADA_EVENT, handler);
+  return () => window.removeEventListener(SESSAO_EXPIRADA_EVENT, handler);
 }
 
 export const api = {
@@ -82,8 +134,9 @@ export const api = {
 /** Baixa um arquivo binario (blob) da API - usado para exportacao xlsx. */
 export async function downloadFile(path: string, params?: Record<string, unknown>): Promise<Blob> {
   const url = buildUrl(path, params);
-  const res = await fetch(url);
+  const res = await fetch(url, { headers: authHeaders() });
   if (!res.ok) {
+    if (res.status === 401) window.dispatchEvent(new CustomEvent(SESSAO_EXPIRADA_EVENT));
     throw new ApiError(`Erro ${res.status} ao baixar arquivo`, res.status);
   }
   return res.blob();
@@ -93,9 +146,10 @@ export async function downloadFile(path: string, params?: Record<string, unknown
 export async function uploadFile<T>(path: string, file: File, fieldName = "arquivo"): Promise<T> {
   const formData = new FormData();
   formData.append(fieldName, file);
-  const res = await fetch(buildUrl(path), { method: "POST", body: formData });
+  const res = await fetch(buildUrl(path), { method: "POST", headers: authHeaders(), body: formData });
   const payload = await parseResponse(res);
   if (!res.ok) {
+    if (res.status === 401) window.dispatchEvent(new CustomEvent(SESSAO_EXPIRADA_EVENT));
     const mensagem =
       (payload && typeof payload === "object" && "erro" in (payload as any)
         ? (payload as any).erro

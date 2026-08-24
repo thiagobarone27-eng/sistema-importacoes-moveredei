@@ -16,6 +16,8 @@ import { comparacaoRouter } from "./routes/comparacao";
 import { alertasRouter } from "./routes/alertas";
 import { relatoriosRouter } from "./routes/relatorios";
 import { importarPlanilhaRouter } from "./routes/importarPlanilha";
+import { authRouter } from "./routes/auth";
+import { bloquearEscritaSemAdmin, requireAuth } from "./lib/auth";
 
 const app = express();
 
@@ -24,6 +26,18 @@ app.use(cors());
 app.use(express.json({ limit: "10mb" }));
 
 app.get("/api/health", (_req, res) => res.json({ ok: true }));
+
+// Login e publico (sem token ainda). As demais rotas de /api/auth (me,
+// gestao de usuarios) exigem auth e sao protegidas individualmente dentro
+// do proprio router.
+app.use("/api/auth", authRouter);
+
+// A partir daqui, toda rota /api/* exige login. GET fica liberado para
+// qualquer usuario autenticado (admin ou visualizador); metodos de
+// escrita (POST/PUT/PATCH/DELETE) ficam restritos a admin. Isso protege
+// por padrao qualquer rota nova que for adicionada no futuro.
+app.use("/api", requireAuth);
+app.use("/api", bloquearEscritaSemAdmin);
 
 app.use("/api/empresas", empresasRouter);
 app.use("/api/produtos", produtosRouter);

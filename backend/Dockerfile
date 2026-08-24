@@ -38,5 +38,8 @@ ENV DATABASE_URL="file:./data/dev.db"
 ENV PORT=4000
 EXPOSE 4000
 
-# Aplica a migration e o seed (idempotentes) e sobe o servidor.
-CMD ["sh", "-c", "npx tsx prisma/migrate.ts && node dist/server.js"]
+# Aplica a migration, cria o admin inicial se ainda nao existir nenhum
+# usuario (ambos idempotentes/nao destrutivos) e sobe o servidor. NUNCA
+# inclua aqui o prisma/seed.ts de dados de importacao - aquele e
+# destrutivo (recria os 19 registros) e so deve rodar manualmente.
+CMD ["sh", "-c", "npx tsx prisma/migrate.ts && npx tsx prisma/seed-admin.ts && node dist/server.js"]
