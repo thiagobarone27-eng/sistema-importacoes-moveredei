@@ -1,5 +1,5 @@
 server {
-    listen 80;
+    listen ${PORT};
     server_name _;
     root /usr/share/nginx/html;
     index index.html;
@@ -11,8 +11,9 @@ server {
         add_header Cache-Control "public, immutable";
     }
 
-    # Proxy de API: o container do frontend encaminha /api para o backend,
-    # assim o app funciona em qualquer dominio sem precisar saber o host do backend.
+    # Proxy de API: usado apenas no docker-compose (rede interna "backend").
+    # Em plataformas como Railway, o frontend chama o backend direto pela URL
+    # publica (VITE_API_URL definido no build), entao este bloco fica inerte.
     location /api/ {
         proxy_pass http://backend:4000/api/;
         proxy_http_version 1.1;

@@ -38,7 +38,15 @@ const sqliteFile = resolveSqliteFile(databaseUrl);
 fs.mkdirSync(path.dirname(sqliteFile), { recursive: true });
 
 export const sqlite = new Database(sqliteFile);
-sqlite.pragma("journal_mode = WAL");
+// NOTA: journal_mode WAL depende de locking/mmap de arquivo compartilhado
+// (arquivos -wal/-shm) que nao funcionam de forma confiavel em volumes de
+// rede como os usados por provedores cloud (Railway inclusive) - gravacoes
+// podem ficar "presas" no -wal e sumir quando o container e substituido em
+// um novo deploy, mesmo com o volume persistente corretamente montado.
+// journal_mode DELETE (o padrao do SQLite) grava tudo direto no arquivo
+// principal do banco, sem depender de memoria compartilhada entre
+// processos/containers, o que e seguro nesse tipo de armazenamento.
+sqlite.pragma("journal_mode = DELETE");
 sqlite.pragma("foreign_keys = ON");
 
 

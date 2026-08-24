@@ -18,5 +18,11 @@ RUN npm run build
 # ---- Stage 2: runtime (nginx servindo os arquivos estaticos) ----
 FROM nginx:1.27-alpine AS runtime
 COPY --from=build /app/dist /usr/share/nginx/html
-COPY nginx.conf /etc/nginx/conf.d/default.conf
+# Usa o mecanismo de templates da imagem oficial do nginx (envsubst automatico
+# no entrypoint): troca ${PORT} pelo valor real da variavel de ambiente antes
+# de gerar /etc/nginx/conf.d/default.conf. Isso e necessario em plataformas
+# como Railway, que atribuem a porta publica dinamicamente via $PORT em vez
+# de sempre usar a porta 80 fixa.
+COPY nginx.conf.template /etc/nginx/templates/default.conf.template
+ENV PORT=80
 EXPOSE 80
