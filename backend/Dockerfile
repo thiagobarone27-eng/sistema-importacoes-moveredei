@@ -28,6 +28,10 @@ COPY --from=build /app/node_modules ./node_modules
 COPY --from=build /app/package*.json ./
 COPY --from=build /app/dist ./dist
 COPY --from=build /app/prisma ./prisma
+# prisma/migrate.ts e prisma/seed.ts importam direto de src/lib/* via tsx
+# (nao passam pelo build do TypeScript), entao src/ precisa estar na imagem.
+COPY --from=build /app/src ./src
+COPY --from=build /app/tsconfig.json ./tsconfig.json
 
 # DATABASE_URL deve apontar para um caminho gravavel (ex: um volume montado).
 ENV DATABASE_URL="file:./data/dev.db"
