@@ -1,0 +1,29 @@
+services:
+  backend:
+    build:
+      context: ./backend
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: "file:./data/dev.db"
+      PORT: "4000"
+    volumes:
+      # Persiste o banco SQLite fora do container, entre updates/restart.
+      - backend-data:/app/data
+    ports:
+      # Exposto tambem diretamente, util para debug/API direta.
+      # Pode remover em producao se so o frontend (via proxy) precisar acessar.
+      - "4000:4000"
+
+  frontend:
+    build:
+      context: ./frontend
+      args:
+        VITE_API_URL: /api
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "8080:80"
+
+volumes:
+  backend-data:

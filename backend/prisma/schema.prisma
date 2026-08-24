@@ -1,0 +1,186 @@
+// Schema Prisma - Sistema de Gestao de Importacoes (Moveredei)
+//
+// DATABASE_URL vem do .env. Por padrao usa SQLite (file:./dev.db) mas o
+// provider "sqlite" pode ser trocado para "postgresql" no futuro (basta
+// trocar o provider abaixo e o valor de DATABASE_URL, e rodar uma nova
+// migration) sem alterar nenhum outro codigo da aplicacao.
+//
+// ATENCAO - DEVIO DE IMPLEMENTACAO (leia src/lib/db.ts para o detalhe
+// completo): este arquivo permanece como a documentacao formal/fonte da
+// verdade do modelo de dados, mas a aplicacao em execucao NAO usa o
+// Prisma Client nem o Prisma CLI. O sandbox onde este backend foi
+// construido bloqueia por politica de rede o unico host de onde o Prisma
+// baixa seus binarios (binaries.prisma.sh) - até `prisma -v` falha com
+// 403 ali. A camada de dados real (prisma/migrate.ts, prisma/seed.ts,
+// src/lib/db.ts e as rotas) foi implementada com Kysely + better-sqlite3,
+// replicando exatamente este modelo tabela por tabela e coluna por
+// coluna. Assim que este projeto rodar num ambiente com acesso normal a
+// internet, `prisma migrate dev` + `@prisma/client` podem substituir essa
+// camada sem mudar o modelo de dados em si.
+//
+// IMPORTANTE: nenhum campo calculado (totais, percentuais, markup,
+// classificacao de eficiencia etc) e armazenado aqui. Tudo isso e
+// calculado sob demanda em src/lib/calculos.ts a partir dos valores
+// brutos gravados nesta tabela, para nunca dessincronizar (esse era um
+// bug estrutural da planilha original).
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model Empresa {
+  id          Int          @id @default(autoincrement())
+  nome        String       @unique
+  criadoEm    DateTime     @default(now())
+  importacoes Importacao[]
+}
+
+model Produto {
+  id          Int          @id @default(autoincrement())
+  nome        String       @unique
+  criadoEm    DateTime     @default(now())
+  importacoes Importacao[]
+}
+
+model Fornecedor {
+  id          Int          @id @default(autoincrement())
+  nome        String
+  pais        String?
+  criadoEm    DateTime     @default(now())
+  importacoes Importacao[]
+}
+
+// Categoria: "fluxo" (etapas normais do processo) ou "excecao" (estados
+// de excecao/alerta que podem ocorrer em paralelo a qualquer etapa).
+model StatusImportacao {
+  id       Int    @id @default(autoincrement())
+  codigo   String @unique
+  label    String
+  corHex   String
+  icone    String
+  categoria String // "fluxo" | "excecao"
+  ordem    Int
+
+  importacoes             Importacao[]
+  historicoStatusAnterior HistoricoStatus[] @relation("statusAnteriorRel")
+  historicoStatusNovo     HistoricoStatus[] @relation("statusNovoRel")
+}
+
+model Importacao {
+  id              Int      @id @default(autoincrement())
+  numeroProcesso  String?  @unique
+
+  empresaId    Int
+  empresa      Empresa    @relation(fields: [empresaId], references: [id])
+  produtoId    Int
+  produto      Produto    @relation(fields: [produtoId], references: [id])
+  fornecedorId Int?
+  fornecedor   Fornecedor? @relation(fields: [fornecedorId], references: [id])
+  statusId     Int
+  status       StatusImportacao @relation(fields: [statusId], references: [id])
+
+  quantidade             Float
+  unidade                String  @default("un")
+  valorUnitarioOriginal  Float?
+  cambioDolar            Float?
+
+  invoiceValor       Float
+  transporteChina    Float @default(0)
+  servicoAdmin       Float @default(0)
+  impostoII          Float @default(0)
+  impostoIPI         Float @default(0)
+  impostoPIS         Float @default(0)
+  impostoCOFINS      Float @default(0)
+  impostoICMS        Float @default(0)
+  armazenagem        Float @default(0)
+  taxaDta            Float @default(0)
+  freteInternacional Float @default(0)
+  freteRodoviario    Float @default(0)
+  taxasSeguro        Float @default(0)
+  siscomex           Float @default(0)
+  sda                Float @default(0)
+  agenciamento       Float @default(0)
+  outrasDespesas     Float @default(0)
+
+  dataCompra           DateTime?
+  dataPrevistaEmbarque DateTime?
+  dataEmbarque         DateTime?
+  dataChegada          DateTime?
+  dataNacionalizacao   DateTime?
+
+  paisOrigem   String?
+  observacoes  String?
+
+  arquivadoEm DateTime?
+
+  criadoEm     DateTime @default(now())
+  atualizadoEm DateTime @updatedAt
+  criadoPor    String?  @default("Thiago")
+  atualizadoPor String? @default("Thiago")
+
+  historicoStatus     HistoricoStatus[]
+  historicoAlteracoes HistoricoAlteracao[]
+
+  @@index([empresaId])
+  @@index([produtoId])
+  @@index([statusId])
+  @@index([fornecedorId])
+}
+
+model HistoricoStatus {
+  id               Int      @id @default(autoincrement())
+  importacaoId     Int
+  importacao       Importacao @relation(fields: [importacaoId], references: [id])
+  statusAnteriorId Int?
+  statusAnterior   StatusImportacao? @relation("statusAnteriorRel", fields: [statusAnteriorId], references: [id])
+  statusNovoId     Int
+  statusNovo       StatusImportacao  @relation("statusNovoRel", fields: [statusNovoId], references: [id])
+  alteradoPor      String   @default("Thiago")
+  alteradoEm       DateTime @default(now())
+  observacao       String?
+
+  @@index([importacaoId])
+}
+
+model HistoricoAlteracao {
+  id           Int      @id @default(autoincrement())
+  importacaoId Int
+  importacao   Importacao @relation(fields: [importacaoId], references: [id])
+  campo        String
+  valorAntigo  String?
+  valorNovo    String?
+  usuario      String   @default("Thiago")
+  alteradoEm   DateTime @default(now())
+
+  @@index([importacaoId])
+}
+
+// Singleton (deve existir sempre exatamente 1 linha, id=1).
+// Limiares de classificacao de eficiencia em 5 niveis:
+//   Muito eficiente < eficiente < Atencao(regular) < Ineficiente < Muito ineficiente
+model ConfiguracaoEficiencia {
+  id Int @id @default(autoincrement())
+
+  muitoEficienteOverheadMax Float @default(0.4)
+  muitoEficienteMarkupMax   Float @default(1.4)
+
+  eficienteOverheadMax Float @default(0.7)
+  eficienteMarkupMax   Float @default(1.8)
+
+  regularOverheadMax Float @default(1.0)
+  regularMarkupMax   Float @default(2.2)
+
+  ineficienteOverheadMax Float @default(1.5)
+  ineficienteMarkupMax   Float @default(3.0)
+
+  // acima dos limiares de ineficiente => "muito ineficiente"
+
+  diasSemAtualizacaoAlerta Int @default(15)
+
+  atualizadoEm DateTime @updatedAt
+}
