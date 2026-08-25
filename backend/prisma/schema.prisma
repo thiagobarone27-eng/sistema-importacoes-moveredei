@@ -107,6 +107,31 @@ model Importacao {
   agenciamento       Float @default(0)
   outrasDespesas     Float @default(0)
 
+  // Cambio de referencia do dia do frete - apenas informativo, NAO entra em
+  // nenhum calculo/total (ver src/lib/calculos.ts).
+  cambioFrete    Float?
+
+  // Bloco "Frete internacional / origem" (valores ja em R$)
+  airFreight        Float @default(0)
+  desconsolidacao   Float @default(0)
+  taxaLiberacao     Float @default(0)
+  docFeeOrigin      Float @default(0)
+  customsOrigin     Float @default(0)
+  pickUp            Float @default(0)
+  palletFee         Float @default(0)
+  exportLicense     Float @default(0)
+  devolucaoVazio    Float @default(0)
+  lavagem           Float @default(0)
+  fichaEmergencia   Float @default(0)
+
+  // Bloco "Impostos e taxas nacionais"
+  impostosFederais  Float @default(0)
+  afrmm             Float @default(0)
+
+  // Bloco "Custos aduaneiros"
+  honorarios        Float @default(0)
+  licenciamento     Float @default(0)
+
   dataCompra           DateTime?
   dataPrevistaEmbarque DateTime?
   dataEmbarque         DateTime?

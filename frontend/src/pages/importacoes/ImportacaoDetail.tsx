@@ -30,20 +30,36 @@ const CAMPO_LABEL: Record<string, string> = {
   invoiceValor: "Invoice",
   transporteChina: "Transporte China",
   servicoAdmin: "Serviço administrativo",
-  impostoII: "Imposto II",
-  impostoIPI: "Imposto IPI",
-  impostoPIS: "Imposto PIS",
-  impostoCOFINS: "Imposto COFINS",
-  impostoICMS: "Imposto ICMS",
+  impostoII: "II",
+  impostoIPI: "IPI",
+  impostoPIS: "PIS",
+  impostoCOFINS: "COFINS",
+  impostoICMS: "ICMS",
   armazenagem: "Armazenagem",
   taxaDta: "Taxa DTA",
   freteInternacional: "Frete internacional",
-  freteRodoviario: "Frete rodoviário",
+  freteRodoviario: "Rodoviário",
   taxasSeguro: "Taxas/seguro",
-  siscomex: "Siscomex",
-  sda: "SDA",
+  siscomex: "TX Siscomex",
+  sda: "S.D.A.",
   agenciamento: "Agenciamento",
   outrasDespesas: "Outras despesas",
+  cambioFrete: "Câmbio do dia do frete",
+  airFreight: "Air freight",
+  desconsolidacao: "Desconsolidação",
+  taxaLiberacao: "Taxa de liberação",
+  docFeeOrigin: "Doc fee origin",
+  customsOrigin: "Customs origin",
+  pickUp: "Pick up",
+  palletFee: "Pallet fee",
+  exportLicense: "Export license",
+  devolucaoVazio: "Devolução vazio",
+  lavagem: "Lavagem",
+  fichaEmergencia: "Ficha de emergência",
+  impostosFederais: "Impostos federais",
+  afrmm: "AFRMM",
+  honorarios: "Honorários",
+  licenciamento: "Licenciamento",
   dataCompra: "Data de compra",
   dataPrevistaEmbarque: "Data prevista de embarque",
   dataEmbarque: "Data de embarque",
@@ -182,21 +198,37 @@ export function ImportacaoDetail() {
         <CardBody>
           <div className="grid grid-cols-2 gap-x-6 gap-y-2 text-sm sm:grid-cols-3 lg:grid-cols-4">
             <InfoRow label="Invoice" value={formatCurrency(imp.invoiceValor)} strong />
+            <InfoRow label="Câmbio do dia do frete" value={imp.cambioFrete ? formatNumber(imp.cambioFrete) : "—"} />
             <InfoRow label="Transporte China" value={formatCurrency(imp.transporteChina)} />
-            <InfoRow label="Serviço administrativo" value={formatCurrency(imp.servicoAdmin)} />
-            <InfoRow label="Imposto II" value={formatCurrency(imp.impostoII)} />
-            <InfoRow label="Imposto IPI" value={formatCurrency(imp.impostoIPI)} />
-            <InfoRow label="Imposto PIS" value={formatCurrency(imp.impostoPIS)} />
-            <InfoRow label="Imposto COFINS" value={formatCurrency(imp.impostoCOFINS)} />
-            <InfoRow label="Imposto ICMS" value={formatCurrency(imp.impostoICMS)} />
+            <InfoRow label="Frete internacional" value={formatCurrency(imp.freteInternacional)} />
+            <InfoRow label="Air freight" value={formatCurrency(imp.airFreight)} />
+            <InfoRow label="Rodoviário" value={formatCurrency(imp.freteRodoviario)} />
             <InfoRow label="Armazenagem" value={formatCurrency(imp.armazenagem)} />
             <InfoRow label="Taxa DTA" value={formatCurrency(imp.taxaDta)} />
-            <InfoRow label="Frete internacional" value={formatCurrency(imp.freteInternacional)} />
-            <InfoRow label="Frete rodoviário" value={formatCurrency(imp.freteRodoviario)} />
             <InfoRow label="Taxas/seguro" value={formatCurrency(imp.taxasSeguro)} />
-            <InfoRow label="Siscomex" value={formatCurrency(imp.siscomex)} />
-            <InfoRow label="SDA" value={formatCurrency(imp.sda)} />
+            <InfoRow label="Desconsolidação" value={formatCurrency(imp.desconsolidacao)} />
+            <InfoRow label="Taxa de liberação" value={formatCurrency(imp.taxaLiberacao)} />
+            <InfoRow label="Doc fee origin" value={formatCurrency(imp.docFeeOrigin)} />
+            <InfoRow label="Customs origin" value={formatCurrency(imp.customsOrigin)} />
+            <InfoRow label="Pick up" value={formatCurrency(imp.pickUp)} />
+            <InfoRow label="Pallet fee" value={formatCurrency(imp.palletFee)} />
+            <InfoRow label="Export license" value={formatCurrency(imp.exportLicense)} />
+            <InfoRow label="Devolução vazio" value={formatCurrency(imp.devolucaoVazio)} />
+            <InfoRow label="Lavagem" value={formatCurrency(imp.lavagem)} />
+            <InfoRow label="Ficha de emergência" value={formatCurrency(imp.fichaEmergencia)} />
+            <InfoRow label="II" value={formatCurrency(imp.impostoII)} />
+            <InfoRow label="IPI" value={formatCurrency(imp.impostoIPI)} />
+            <InfoRow label="PIS" value={formatCurrency(imp.impostoPIS)} />
+            <InfoRow label="COFINS" value={formatCurrency(imp.impostoCOFINS)} />
+            <InfoRow label="ICMS" value={formatCurrency(imp.impostoICMS)} />
+            <InfoRow label="Impostos federais" value={formatCurrency(imp.impostosFederais)} />
+            <InfoRow label="AFRMM" value={formatCurrency(imp.afrmm)} />
+            <InfoRow label="TX Siscomex" value={formatCurrency(imp.siscomex)} />
+            <InfoRow label="S.D.A." value={formatCurrency(imp.sda)} />
             <InfoRow label="Agenciamento" value={formatCurrency(imp.agenciamento)} />
+            <InfoRow label="Honorários" value={formatCurrency(imp.honorarios)} />
+            <InfoRow label="Licenciamento" value={formatCurrency(imp.licenciamento)} />
+            <InfoRow label="Serviço administrativo" value={formatCurrency(imp.servicoAdmin)} />
             <InfoRow label="Outras despesas" value={formatCurrency(imp.outrasDespesas)} />
           </div>
           {imp.observacoes && (

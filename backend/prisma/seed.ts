@@ -224,6 +224,25 @@ async function main() {
         sda: item.sda,
         agenciamento: item.agenciamento,
         outrasDespesas: 0,
+        // Campos novos (pedido de ago/2026): nao existem na planilha
+        // historica original, entao ficam zerados/nulos - usuario preenche
+        // depois pela interface se quiser retroagir algum registro antigo.
+        cambioFrete: null,
+        airFreight: 0,
+        desconsolidacao: 0,
+        taxaLiberacao: 0,
+        docFeeOrigin: 0,
+        customsOrigin: 0,
+        pickUp: 0,
+        palletFee: 0,
+        exportLicense: 0,
+        devolucaoVazio: 0,
+        lavagem: 0,
+        fichaEmergencia: 0,
+        impostosFederais: 0,
+        afrmm: 0,
+        honorarios: 0,
+        licenciamento: 0,
         // Nenhuma data existia na planilha original - fica NULL, usuario
         // preenche depois pela interface.
         dataCompra: null,

@@ -25,6 +25,21 @@ export function comIndicadores(imp: any, config?: ConfigEficienciaLimiares) {
     sda: imp.sda,
     agenciamento: imp.agenciamento,
     outrasDespesas: imp.outrasDespesas,
+    airFreight: imp.airFreight,
+    desconsolidacao: imp.desconsolidacao,
+    taxaLiberacao: imp.taxaLiberacao,
+    docFeeOrigin: imp.docFeeOrigin,
+    customsOrigin: imp.customsOrigin,
+    pickUp: imp.pickUp,
+    palletFee: imp.palletFee,
+    exportLicense: imp.exportLicense,
+    devolucaoVazio: imp.devolucaoVazio,
+    lavagem: imp.lavagem,
+    fichaEmergencia: imp.fichaEmergencia,
+    impostosFederais: imp.impostosFederais,
+    afrmm: imp.afrmm,
+    honorarios: imp.honorarios,
+    licenciamento: imp.licenciamento,
   });
 
   const classificacao = config

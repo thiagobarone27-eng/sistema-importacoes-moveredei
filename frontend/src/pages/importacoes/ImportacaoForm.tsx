@@ -52,6 +52,27 @@ interface FormState {
   agenciamento: string;
   outrasDespesas: string;
 
+  // Cambio de referencia do dia do frete - so anotacao, nao entra em calculo.
+  cambioFrete: string;
+  // Bloco "Frete internacional / origem" (valores ja em R$)
+  airFreight: string;
+  desconsolidacao: string;
+  taxaLiberacao: string;
+  docFeeOrigin: string;
+  customsOrigin: string;
+  pickUp: string;
+  palletFee: string;
+  exportLicense: string;
+  devolucaoVazio: string;
+  lavagem: string;
+  fichaEmergencia: string;
+  // Bloco "Impostos e taxas nacionais"
+  impostosFederais: string;
+  afrmm: string;
+  // Bloco "Custos aduaneiros"
+  honorarios: string;
+  licenciamento: string;
+
   observacoes: string;
 }
 
@@ -92,6 +113,23 @@ const ESTADO_INICIAL: FormState = {
   agenciamento: "",
   outrasDespesas: "",
 
+  cambioFrete: "",
+  airFreight: "",
+  desconsolidacao: "",
+  taxaLiberacao: "",
+  docFeeOrigin: "",
+  customsOrigin: "",
+  pickUp: "",
+  palletFee: "",
+  exportLicense: "",
+  devolucaoVazio: "",
+  lavagem: "",
+  fichaEmergencia: "",
+  impostosFederais: "",
+  afrmm: "",
+  honorarios: "",
+  licenciamento: "",
+
   observacoes: "",
 };
 
@@ -101,21 +139,42 @@ function num(v: string): number {
   return Number.isNaN(n) ? 0 : n;
 }
 
-const CAMPOS_CUSTO: Array<{ key: keyof FormState; label: string; grupo: string }> = [
+const CAMPOS_CUSTO: Array<{ key: keyof FormState; label: string; grupo: string; hint?: string }> = [
+  {
+    key: "cambioFrete",
+    label: "Câmbio do dia do frete",
+    grupo: "Frete",
+    hint: "apenas referência, não entra nos cálculos",
+  },
   { key: "transporteChina", label: "Transporte China", grupo: "Frete" },
   { key: "freteInternacional", label: "Frete internacional", grupo: "Frete" },
-  { key: "freteRodoviario", label: "Frete rodoviário", grupo: "Frete" },
+  { key: "airFreight", label: "Air freight", grupo: "Frete" },
+  { key: "freteRodoviario", label: "Rodoviário", grupo: "Frete" },
   { key: "armazenagem", label: "Armazenagem", grupo: "Frete" },
   { key: "taxaDta", label: "Taxa DTA", grupo: "Frete" },
   { key: "taxasSeguro", label: "Taxas/seguro", grupo: "Frete" },
-  { key: "impostoII", label: "Imposto II", grupo: "Impostos" },
-  { key: "impostoIPI", label: "Imposto IPI", grupo: "Impostos" },
-  { key: "impostoPIS", label: "Imposto PIS", grupo: "Impostos" },
-  { key: "impostoCOFINS", label: "Imposto COFINS", grupo: "Impostos" },
-  { key: "impostoICMS", label: "Imposto ICMS", grupo: "Impostos" },
-  { key: "siscomex", label: "Siscomex", grupo: "Custos aduaneiros" },
-  { key: "sda", label: "SDA", grupo: "Custos aduaneiros" },
+  { key: "desconsolidacao", label: "Desconsolidação", grupo: "Frete" },
+  { key: "taxaLiberacao", label: "Taxa de liberação", grupo: "Frete" },
+  { key: "docFeeOrigin", label: "Doc fee origin", grupo: "Frete" },
+  { key: "customsOrigin", label: "Customs origin", grupo: "Frete" },
+  { key: "pickUp", label: "Pick up", grupo: "Frete" },
+  { key: "palletFee", label: "Pallet fee", grupo: "Frete" },
+  { key: "exportLicense", label: "Export license", grupo: "Frete" },
+  { key: "devolucaoVazio", label: "Devolução vazio", grupo: "Frete" },
+  { key: "lavagem", label: "Lavagem", grupo: "Frete" },
+  { key: "fichaEmergencia", label: "Ficha de emergência", grupo: "Frete" },
+  { key: "impostoII", label: "II", grupo: "Impostos" },
+  { key: "impostoIPI", label: "IPI", grupo: "Impostos" },
+  { key: "impostoPIS", label: "PIS", grupo: "Impostos" },
+  { key: "impostoCOFINS", label: "COFINS", grupo: "Impostos" },
+  { key: "impostoICMS", label: "ICMS", grupo: "Impostos" },
+  { key: "impostosFederais", label: "Impostos federais", grupo: "Impostos" },
+  { key: "afrmm", label: "AFRMM", grupo: "Impostos" },
+  { key: "siscomex", label: "TX Siscomex", grupo: "Custos aduaneiros" },
+  { key: "sda", label: "S.D.A.", grupo: "Custos aduaneiros" },
   { key: "agenciamento", label: "Agenciamento", grupo: "Custos aduaneiros" },
+  { key: "honorarios", label: "Honorários", grupo: "Custos aduaneiros" },
+  { key: "licenciamento", label: "Licenciamento", grupo: "Custos aduaneiros" },
   { key: "servicoAdmin", label: "Serviço administrativo", grupo: "Outros" },
   { key: "outrasDespesas", label: "Outras despesas", grupo: "Outros" },
 ];
@@ -194,6 +253,22 @@ export function ImportacaoForm() {
         sda: String(imp.sda ?? 0),
         agenciamento: String(imp.agenciamento ?? 0),
         outrasDespesas: String(imp.outrasDespesas ?? 0),
+        cambioFrete: imp.cambioFrete !== null && imp.cambioFrete !== undefined ? String(imp.cambioFrete) : "",
+        airFreight: String(imp.airFreight ?? 0),
+        desconsolidacao: String(imp.desconsolidacao ?? 0),
+        taxaLiberacao: String(imp.taxaLiberacao ?? 0),
+        docFeeOrigin: String(imp.docFeeOrigin ?? 0),
+        customsOrigin: String(imp.customsOrigin ?? 0),
+        pickUp: String(imp.pickUp ?? 0),
+        palletFee: String(imp.palletFee ?? 0),
+        exportLicense: String(imp.exportLicense ?? 0),
+        devolucaoVazio: String(imp.devolucaoVazio ?? 0),
+        lavagem: String(imp.lavagem ?? 0),
+        fichaEmergencia: String(imp.fichaEmergencia ?? 0),
+        impostosFederais: String(imp.impostosFederais ?? 0),
+        afrmm: String(imp.afrmm ?? 0),
+        honorarios: String(imp.honorarios ?? 0),
+        licenciamento: String(imp.licenciamento ?? 0),
         observacoes: imp.observacoes ?? "",
       });
       setCarregouExistente(true);
@@ -261,6 +336,21 @@ export function ImportacaoForm() {
         sda: num(form.sda),
         agenciamento: num(form.agenciamento),
         outrasDespesas: num(form.outrasDespesas),
+        airFreight: num(form.airFreight),
+        desconsolidacao: num(form.desconsolidacao),
+        taxaLiberacao: num(form.taxaLiberacao),
+        docFeeOrigin: num(form.docFeeOrigin),
+        customsOrigin: num(form.customsOrigin),
+        pickUp: num(form.pickUp),
+        palletFee: num(form.palletFee),
+        exportLicense: num(form.exportLicense),
+        devolucaoVazio: num(form.devolucaoVazio),
+        lavagem: num(form.lavagem),
+        fichaEmergencia: num(form.fichaEmergencia),
+        impostosFederais: num(form.impostosFederais),
+        afrmm: num(form.afrmm),
+        honorarios: num(form.honorarios),
+        licenciamento: num(form.licenciamento),
       }),
     [form]
   );
@@ -355,6 +445,22 @@ export function ImportacaoForm() {
       sda: num(form.sda),
       agenciamento: num(form.agenciamento),
       outrasDespesas: num(form.outrasDespesas),
+      cambioFrete: form.cambioFrete ? num(form.cambioFrete) : null,
+      airFreight: num(form.airFreight),
+      desconsolidacao: num(form.desconsolidacao),
+      taxaLiberacao: num(form.taxaLiberacao),
+      docFeeOrigin: num(form.docFeeOrigin),
+      customsOrigin: num(form.customsOrigin),
+      pickUp: num(form.pickUp),
+      palletFee: num(form.palletFee),
+      exportLicense: num(form.exportLicense),
+      devolucaoVazio: num(form.devolucaoVazio),
+      lavagem: num(form.lavagem),
+      fichaEmergencia: num(form.fichaEmergencia),
+      impostosFederais: num(form.impostosFederais),
+      afrmm: num(form.afrmm),
+      honorarios: num(form.honorarios),
+      licenciamento: num(form.licenciamento),
       observacoes: form.observacoes || null,
     };
 
@@ -583,7 +689,7 @@ export function ImportacaoForm() {
                     <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
                       {CAMPOS_CUSTO.filter((c) => c.grupo === grupo).map((campo) => (
                         <div key={campo.key}>
-                          <Label>{campo.label}</Label>
+                          <Label hint={campo.hint}>{campo.label}</Label>
                           <Input
                             type="number"
                             inputMode="decimal"

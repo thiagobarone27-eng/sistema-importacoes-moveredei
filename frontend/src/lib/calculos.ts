@@ -23,6 +23,24 @@ export interface ValoresBrutosImportacao {
   sda: number;
   agenciamento: number;
   outrasDespesas: number;
+  // Bloco "Frete internacional / origem" (valores ja em R$)
+  airFreight: number;
+  desconsolidacao: number;
+  taxaLiberacao: number;
+  docFeeOrigin: number;
+  customsOrigin: number;
+  pickUp: number;
+  palletFee: number;
+  exportLicense: number;
+  devolucaoVazio: number;
+  lavagem: number;
+  fichaEmergencia: number;
+  // Bloco "Impostos e taxas nacionais"
+  impostosFederais: number;
+  afrmm: number;
+  // Bloco "Custos aduaneiros"
+  honorarios: number;
+  licenciamento: number;
 }
 
 export interface IndicadoresImportacao {
@@ -44,12 +62,29 @@ export interface IndicadoresImportacao {
 }
 
 export function calcularIndicadores(v: ValoresBrutosImportacao): IndicadoresImportacao {
-  const totalImpostos = v.impostoII + v.impostoIPI + v.impostoPIS + v.impostoCOFINS + v.impostoICMS;
+  const totalImpostos =
+    v.impostoII + v.impostoIPI + v.impostoPIS + v.impostoCOFINS + v.impostoICMS + v.impostosFederais + v.afrmm;
 
   const totalFrete =
-    v.transporteChina + v.armazenagem + v.taxaDta + v.freteInternacional + v.freteRodoviario + v.taxasSeguro;
+    v.transporteChina +
+    v.armazenagem +
+    v.taxaDta +
+    v.freteInternacional +
+    v.freteRodoviario +
+    v.taxasSeguro +
+    v.airFreight +
+    v.desconsolidacao +
+    v.taxaLiberacao +
+    v.docFeeOrigin +
+    v.customsOrigin +
+    v.pickUp +
+    v.palletFee +
+    v.exportLicense +
+    v.devolucaoVazio +
+    v.lavagem +
+    v.fichaEmergencia;
 
-  const custosAduaneiros = v.siscomex + v.sda + v.agenciamento;
+  const custosAduaneiros = v.siscomex + v.sda + v.agenciamento + v.honorarios + v.licenciamento;
 
   const overheadTotal = totalImpostos + totalFrete + custosAduaneiros + v.servicoAdmin + v.outrasDespesas;
 

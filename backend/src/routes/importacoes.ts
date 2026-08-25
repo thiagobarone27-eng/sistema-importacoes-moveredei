@@ -27,6 +27,22 @@ const CAMPOS_NUMERICOS = new Set([
   "sda",
   "agenciamento",
   "outrasDespesas",
+  "cambioFrete",
+  "airFreight",
+  "desconsolidacao",
+  "taxaLiberacao",
+  "docFeeOrigin",
+  "customsOrigin",
+  "pickUp",
+  "palletFee",
+  "exportLicense",
+  "devolucaoVazio",
+  "lavagem",
+  "fichaEmergencia",
+  "impostosFederais",
+  "afrmm",
+  "honorarios",
+  "licenciamento",
 ]);
 
 const CAMPOS_DATA = new Set([
@@ -107,6 +123,7 @@ importacoesRouter.post("/", async (req, res) => {
     unidade: body.unidade || "un",
     valorUnitarioOriginal: body.valorUnitarioOriginal ?? null,
     cambioDolar: body.cambioDolar ?? null,
+    cambioFrete: body.cambioFrete ?? null,
     invoiceValor: Number(body.invoiceValor),
     outrasDespesas: body.outrasDespesas ?? 0,
     dataCompra: body.dataCompra ?? null,
@@ -125,7 +142,7 @@ importacoesRouter.post("/", async (req, res) => {
 
   for (const campo of CAMPOS_NUMERICOS) {
     if (campo === "quantidade" || campo === "invoiceValor" || campo === "outrasDespesas") continue;
-    if (campo === "valorUnitarioOriginal" || campo === "cambioDolar") continue;
+    if (campo === "valorUnitarioOriginal" || campo === "cambioDolar" || campo === "cambioFrete") continue;
     dados[campo] = body[campo] !== undefined ? Number(body[campo]) : 0;
   }
 
